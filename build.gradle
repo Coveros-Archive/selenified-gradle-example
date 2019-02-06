@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+group 'com.coveros'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'com.coveros', name: 'selenified', version: '3.0.4'
+}
+
+task selenified(type: Test) {
+    def threads = System.getProperty("threads") ? System.getProperty("threads") : 5
+    systemProperties System.getProperties()
+    useTestNG() {
+        useDefaultListeners = true
+        if (System.getProperty("groups.include") != null) {
+            includeGroups System.getProperty("groups.include")
+        }
+        if (System.hasProperty("groups.exclude") != null) {
+            excludeGroups System.getProperty("groups.exclude")
+        }
+    }
+    testLogging {
+        showStandardStreams = true
+        exceptionFormat = 'full'
+    }
+    options {
+        listeners.add("com.coveros.selenified.utilities.Transformer")
+        parallel = 'methods'
+        threadCount = threads
+    }
+}
